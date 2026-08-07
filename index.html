@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>โปรแกรมคำนวณดวงสติ๊กเกอร์</title>
+<meta name="theme-color" content="#d7194a">
+<meta name="description" content="โปรแกรมคำนวณจำนวนดวงสติ๊กเกอร์และจัดวางพื้นที่พิมพ์ สำหรับ JAIDEE">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="JAIDEE Sticker">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#171717;--muted:#667085;--line:#d0d5dd;--accent:#d7194a;--soft:#fff1f4}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Tahoma,"Noto Sans Thai",sans-serif}
+.wrap{max-width:1180px;margin:auto;padding:16px}.head{display:flex;gap:12px;align-items:center;margin-bottom:14px}.logo{background:var(--accent);color:#fff;font-weight:800;padding:9px 12px;border-radius:11px}.head h1{font-size:21px;margin:0}.head p{font-size:13px;color:var(--muted);margin:4px 0 0}
+.layout{display:grid;grid-template-columns:minmax(300px,370px) minmax(0,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px}.card h2{font-size:17px;margin:0 0 12px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px}label{display:block;font-size:13px;color:#475467;margin-bottom:5px}input,select,button{width:100%;min-height:44px;border-radius:10px;border:1px solid var(--line);padding:9px 11px;font:inherit;background:#fff;color:var(--ink)}input:focus,select:focus{outline:2px solid #fda4b8;border-color:var(--accent)}input:disabled{background:#f2f4f7;color:#667085}button{border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;margin-top:4px}.help{font-size:12px;color:var(--muted);line-height:1.5;margin-top:7px}
+.result{margin-top:13px;padding:13px;border:1px solid #fecdd6;background:var(--soft);border-radius:13px}.big{font-size:38px;font-weight:800;color:var(--accent);line-height:1}.desc{font-size:13px;color:#475467;margin-top:7px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.chip{font-size:12px;padding:5px 8px;border:1px solid #fecdd6;background:#fff;border-radius:999px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}.choice{border:1px solid var(--line);border-radius:10px;padding:9px;background:#fff;cursor:pointer}.choice.active{border-color:var(--accent);box-shadow:0 0 0 2px #fecdd6}.choice b{display:block;font-size:14px}.choice span{font-size:11px;color:var(--muted)}
+.preview{display:flex;justify-content:center;align-items:flex-start}.sheet{width:min(100%,570px)}canvas{display:block;width:100%;height:auto;border:1px solid #98a2b3;border-radius:6px;background:#fff}.caption{text-align:center;color:var(--muted);font-size:12px;margin-top:8px}.warning{margin-top:10px;padding:10px;border-radius:9px;background:#f9fafb;color:#475467;font-size:12px;line-height:1.5}
+@media(max-width:850px){.wrap{padding:10px}.layout{grid-template-columns:1fr}.head h1{font-size:18px}.preview{order:-1}.sheet{max-width:520px}.card{padding:12px}}
+@media(max-width:430px){.row{grid-template-columns:1fr}.choices{grid-template-columns:1fr}.big{font-size:34px}.head p{font-size:12px}}
+
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 12px}.shapeBtn{min-height:52px;border:1px solid var(--line);background:#fff;color:var(--ink);font-weight:600;margin:0}.shapeBtn.active{border-color:var(--accent);background:var(--soft);color:var(--accent);box-shadow:0 0 0 2px #fecdd6}.shapeBtn .shapeIcon{display:block;font-size:28px;line-height:1;margin-bottom:5px}.shapeBtn .shapeText{display:block;font-weight:700;line-height:1.2;white-space:nowrap}.shapeBtn small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:3px}.sectionTitle{font-size:13px;font-weight:700;color:#344054;margin:14px 0 7px}.advanced{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}.advanced summary{cursor:pointer;color:#475467;font-size:13px;font-weight:700}.mobileResult{display:none}.toolbar{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px}.secondary{background:#fff;color:#344054;border:1px solid var(--line);margin-top:4px;width:auto;padding:0 14px}.tip{display:flex;gap:8px;align-items:flex-start;background:#f8fafc;border-radius:10px;padding:9px 10px;margin-top:9px;font-size:12px;color:#475467}.tip b{color:#344054}.fieldHint{font-size:11px;color:var(--muted);margin-top:4px}.unitWrap{position:relative}.unitWrap input{padding-right:46px}.unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);pointer-events:none}.statusLine{font-size:12px;color:var(--muted);margin-top:6px}
+@media(max-width:850px){.preview{order:0}.layout{display:flex;flex-direction:column}.card.preview{padding:10px}.quick{grid-template-columns:1fr 1fr}.mobileResult{display:flex;position:sticky;bottom:8px;z-index:20;gap:10px;align-items:center;justify-content:space-between;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-top:10px}.mobileResult .mCount{font-size:26px;font-weight:800;color:var(--accent)}.mobileResult button{width:auto;min-width:120px;margin:0}.result{margin-bottom:4px}}
+@media(max-width:430px){input,select,button{font-size:16px}.head{align-items:flex-start}.logo{padding:8px 10px}.quick{gap:6px}.shapeBtn{min-height:48px;padding:7px 6px;font-size:13px}.shapeBtn small{font-size:10px}.card{border-radius:12px}.sheet{width:100%}.caption{font-size:11px}.toolbar{grid-template-columns:1fr}.secondary{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head"><div class="logo"><img src="assets/favicon.svg" alt="" style="width:26px;height:26px;display:block"></div><div><h1>โปรแกรมคำนวณดวงสติ๊กเกอร์</h1><p>พื้นที่พิมพ์ 30.2 × 44.4 ซม. รองรับมือถือและคอมพิวเตอร์</p></div></div>
+  <div class="layout">
+    <section class="card">
+      <h2>กำหนดงาน</h2>
+      <div class="sectionTitle">1) กำหนดพื้นที่พิมพ์</div>
+      <div class="row"><div><label for="sheetW">พื้นที่กว้าง</label><div class="unitWrap"><input id="sheetW" inputmode="decimal" type="number" min="0.1" step="0.1" value="30.2"><span class="unit">ซม.</span></div></div><div><label for="sheetH">พื้นที่สูง</label><div class="unitWrap"><input id="sheetH" inputmode="decimal" type="number" min="0.1" step="0.1" value="44.4"><span class="unit">ซม.</span></div></div></div>
+      <div class="sectionTitle">2) เลือกรูปทรง</div>
+      <select id="shape" aria-label="เลือกรูปทรง" style="display:none">
+        <option value="rect">สี่เหลี่ยมขอบธรรมดา</option><option value="rounded">สี่เหลี่ยมขอบมน</option><option value="circle">วงกลม</option><option value="ellipse">วงรี</option>
+      </select>
+      <div class="quick" id="shapeButtons">
+        <button type="button" class="shapeBtn" data-shape="rect"><span class="shapeIcon">▭</span><span class="shapeText">สี่เหลี่ยม</span><small>ชิดกันได้</small></button>
+        <button type="button" class="shapeBtn" data-shape="rounded"><span class="shapeIcon">▢</span><span class="shapeText">ขอบมน</span><small>ห่าง 1 มม.</small></button>
+        <button type="button" class="shapeBtn" data-shape="circle"><span class="shapeIcon">○</span><span class="shapeText">วงกลม</span><small>ฟันปลาได้</small></button>
+        <button type="button" class="shapeBtn" data-shape="ellipse"><span class="shapeIcon">⬭</span><span class="shapeText">วงรี</span><small>ฟันปลาได้</small></button>
+      </div>
+      <div class="sectionTitle">3) ใส่ขนาดสติ๊กเกอร์</div>
+      <div class="row"><div><label id="wLabel" for="itemW">สติ๊กเกอร์กว้าง</label><div class="unitWrap"><input id="itemW" inputmode="decimal" type="number" min="0.1" step="0.1" value="5"><span class="unit">ซม.</span></div></div><div id="heightBox"><label id="hLabel" for="itemH">สติ๊กเกอร์สูง</label><div class="unitWrap"><input id="itemH" inputmode="decimal" type="number" min="0.1" step="0.1" value="5"><span class="unit">ซม.</span></div></div></div>
+      <div class="tip"><span>💡</span><div><b>คำนวณอัตโนมัติ</b><br>พิมพ์ขนาดแล้วโปรแกรมจะอัปเดตจำนวนและแบบวางให้ทันที</div></div>
+      <div class="sectionTitle">4) ระยะห่างและขอบปลอดภัย</div>
+      <div class="row"><div><label for="gap">ระยะห่างระหว่างดวง</label><div class="unitWrap"><input id="gap" type="number" value="0" step="0.1" disabled><span class="unit">ซม.</span></div><div class="fieldHint">ตั้งอัตโนมัติตามรูปทรง: สี่เหลี่ยม 0 มม. / รูปทรงอื่น 1 มม.</div></div><div><label for="margin">ขอบระยะปลอดภัย</label><div class="unitWrap"><input id="margin" inputmode="decimal" type="number" min="0" step="0.05" value="0.3"><span class="unit">ซม.</span></div><div class="fieldHint">เว้นจากขอบพื้นที่พิมพ์เข้ามาทุกด้าน</div></div></div>
+      <div class="toolbar"><button id="calc" type="button">คำนวณใหม่</button><button id="reset" class="secondary" type="button">รีเซ็ต</button></div>
+      <div class="help" id="shapeHelp">สี่เหลี่ยมขอบธรรมดาจะวางติดกันโดยไม่เว้นช่อง</div>
+      <div class="result" aria-live="polite"><div class="big"><span id="count">0</span> ดวง</div><div class="desc" id="desc">—</div><div class="chips" id="chips"></div></div>
+      <div class="choices" id="choices"></div>
+      <div class="mobileResult"><div><div class="statusLine">จำนวนที่แนะนำ</div><div class="mCount"><span id="mobileCount">0</span> ดวง</div></div><button id="mobileCalc" type="button">คำนวณ</button></div>
+      <div class="warning"><b>การจัดวาง:</b> สี่เหลี่ยมจะทดลองผสมแถวแนวตั้งและแนวนอนอัตโนมัติ เพื่อเก็บพื้นที่เศษให้ได้จำนวนมากที่สุด<br><b>วงกลมและวงรี:</b> โปรแกรมตรวจระยะจริงระหว่างขอบทุกคู่ก่อนแสดงผล จึงไม่มีตัวเลือกวางทับกัน และทุกแบบห่างอย่างน้อย 1 มม.</div>
+    </section>
+    <section class="card preview"><div class="sheet"><canvas id="cv" width="700" height="1028"></canvas><div class="caption">เลือกแบบด้านซ้ายเพื่อดูการจัดวางแต่ละรูปแบบ</div></div></section>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id); let layouts=[],active=0;
+const EPS=1e-7;
+function n(id){return Number($(id).value)}
+function fitCount(L,size,gap,margin){const u=L-2*margin;if(u+EPS<size)return 0;return Math.max(0,Math.floor((u+gap+EPS)/(size+gap)))}
+function used(count,size,gap){return count>0?count*size+(count-1)*gap:0}
+function centeredStart(L,total){return Math.max(0,(L-total)/2)}
+function makeGrid(SW,SH,w,h,g,m,label,shape,rot=false){
+  const cols=fitCount(SW,w,g,m),rows=fitCount(SH,h,g,m),tw=used(cols,w,g),th=used(rows,h,g),x0=centeredStart(SW,tw),y0=centeredStart(SH,th),items=[];
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)items.push({x:x0+c*(w+g),y:y0+r*(h+g),w,h,rot});
+  return {label,count:items.length,items,detail:`${cols} คอลัมน์ × ${rows} แถว`,shape};
+}
+function makeMixedRows(SW,SH,w,h,g,m,shape,normalRows,rotatedRows,label){
+  const usableW=SW-2*m;
+  const normalCols=fitCount(SW,w,g,m),rotatedCols=fitCount(SW,h,g,m);
+  const bandHeights=[];
+  for(let i=0;i<normalRows;i++)bandHeights.push({height:h,itemW:w,itemH:h,cols:normalCols,rot:false});
+  for(let i=0;i<rotatedRows;i++)bandHeights.push({height:w,itemW:h,itemH:w,cols:rotatedCols,rot:true});
+  const totalH=bandHeights.reduce((a,b)=>a+b.height,0)+Math.max(0,bandHeights.length-1)*g;
+  if(totalH>SH-2*m+EPS)return null;
+  let y=m+(SH-2*m-totalH)/2,items=[];
+  for(const band of bandHeights){
+    const rowW=used(band.cols,band.itemW,g),x0=m+(usableW-rowW)/2;
+    for(let c=0;c<band.cols;c++)items.push({x:x0+c*(band.itemW+g),y,w:band.itemW,h:band.itemH,rot:band.rot});
+    y+=band.height+g;
+  }
+  return {label,count:items.length,items,detail:`แนวตั้ง ${normalRows} แถว + แนวนอน ${rotatedRows} แถว`,shape};
+}
+function makeMixedCols(SW,SH,w,h,g,m,shape,normalCols,rotatedCols,label){
+  const usableH=SH-2*m;
+  const normalRows=fitCount(SH,h,g,m),rotatedRows=fitCount(SH,w,g,m);
+  const strips=[];
+  for(let i=0;i<normalCols;i++)strips.push({width:w,itemW:w,itemH:h,rows:normalRows,rot:false});
+  for(let i=0;i<rotatedCols;i++)strips.push({width:h,itemW:h,itemH:w,rows:rotatedRows,rot:true});
+  const totalW=strips.reduce((a,b)=>a+b.width,0)+Math.max(0,strips.length-1)*g;
+  if(totalW>SW-2*m+EPS)return null;
+  let x=m+(SW-2*m-totalW)/2,items=[];
+  for(const strip of strips){
+    const colH=used(strip.rows,strip.itemH,g),y0=m+(usableH-colH)/2;
+    for(let r=0;r<strip.rows;r++)items.push({x,y:y0+r*(strip.itemH+g),w:strip.itemW,h:strip.itemH,rot:strip.rot});
+    x+=strip.width+g;
+  }
+  return {label,count:items.length,items,detail:`แนวตั้ง ${normalCols} คอลัมน์ + แนวนอน ${rotatedCols} คอลัมน์`,shape};
+}
+function rectangleCandidates(SW,SH,w,h,g,m,shape){
+  const out=[];
+  const maxNormalRows=Math.max(0,Math.floor((SH-2*m+g)/(h+g))+1);
+  const maxRotRows=Math.max(0,Math.floor((SH-2*m+g)/(w+g))+1);
+  for(let a=0;a<=maxNormalRows;a++)for(let b=0;b<=maxRotRows;b++){
+    if(a+b===0)continue;
+    const L=makeMixedRows(SW,SH,w,h,g,m,shape,a,b,'ผสมแถวแนวตั้ง–แนวนอน');
+    if(L)out.push(L);
+  }
+  const maxNormalCols=Math.max(0,Math.floor((SW-2*m+g)/(w+g))+1);
+  const maxRotCols=Math.max(0,Math.floor((SW-2*m+g)/(h+g))+1);
+  for(let a=0;a<=maxNormalCols;a++)for(let b=0;b<=maxRotCols;b++){
+    if(a+b===0)continue;
+    const L=makeMixedCols(SW,SH,w,h,g,m,shape,a,b,'ผสมคอลัมน์แนวตั้ง–แนวนอน');
+    if(L)out.push(L);
+  }
+  return out;
+}
+// ระยะ Euclidean จากจุด (px,py) ถึงวงรีศูนย์กลาง 0 ที่มีครึ่งแกน a,b
+function pointEllipseDistance(px,py,a,b){
+  px=Math.abs(px);py=Math.abs(py);
+  if(px<EPS&&py<EPS)return -Math.min(a,b);
+  const inside=(px*px)/(a*a)+(py*py)/(b*b)<=1+EPS;
+  if(inside)return 0;
+  let lo=0,hi=Math.max(a*px,b*py,1);
+  const f=t=>((a*px)/(t+a*a))**2+((b*py)/(t+b*b))**2-1;
+  while(f(hi)>0)hi*=2;
+  for(let i=0;i<70;i++){const mid=(lo+hi)/2;if(f(mid)>0)lo=mid;else hi=mid}
+  const t=hi,qx=a*a*px/(t+a*a),qy=b*b*py/(t+b*b);
+  return Math.hypot(px-qx,py-qy);
+}
+// สำหรับวงรีเหมือนกันสองวง: difference body มีครึ่งแกนเท่ากับความกว้างและความสูงเต็ม
+function ellipseEdgeGap(a,b){
+  const dx=(a.x+a.w/2)-(b.x+b.w/2),dy=(a.y+a.h/2)-(b.y+b.h/2);
+  return pointEllipseDistance(dx,dy,a.w,a.h);
+}
+function inside(item,SW,SH,m){return item.x>=m-EPS&&item.y>=m-EPS&&item.x+item.w<=SW-m+EPS&&item.y+item.h<=SH-m+EPS}
+function validateEllipses(items,SW,SH,g,m){
+  for(const it of items)if(!inside(it,SW,SH,m))return false;
+  for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++){
+    const A=items[i],B=items[j];
+    if(Math.abs((A.x+A.w/2)-(B.x+B.w/2))>A.w+g||Math.abs((A.y+A.h/2)-(B.y+B.h/2))>A.h+g)continue;
+    if(ellipseEdgeGap(A,B)<g-1e-5)return false;
+  }
+  return true;
+}
+function staggerHorizontal(SW,SH,w,h,g,m,startShift,label,shape,rot){
+  const xPitch=w+g,dx=xPitch/2;
+  let low=(h+g)/2,high=h+g;
+  for(let k=0;k<60;k++){const mid=(low+high)/2;const A={x:0,y:0,w,h},B={x:dx,y:mid,w,h};if(ellipseEdgeGap(A,B)>=g)high=mid;else low=mid}
+  const yPitch=high,items=[];let row=0;
+  for(let cy=m+h/2;cy+h/2<=SH-m+EPS;cy+=yPitch,row++){
+    const shifted=((row+startShift)%2)===1;
+    const offset=shifted?xPitch/2:0;
+    for(let cx=m+w/2+offset;cx+w/2<=SW-m+EPS;cx+=xPitch)items.push({x:cx-w/2,y:cy-h/2,w,h,rot});
+  }
+  if(!validateEllipses(items,SW,SH,g,m))return null;
+  return {label,count:items.length,items,detail:`ฟันปลาแนวนอน • ระยะขอบ ≥ ${(g*10).toFixed(0)} มม.`,shape};
+}
+function staggerVertical(SW,SH,w,h,g,m,startShift,label,shape,rot){
+  const yPitch=h+g,dy=yPitch/2;
+  let low=(w+g)/2,high=w+g;
+  for(let k=0;k<60;k++){const mid=(low+high)/2;const A={x:0,y:0,w,h},B={x:mid,y:dy,w,h};if(ellipseEdgeGap(A,B)>=g)high=mid;else low=mid}
+  const xPitch=high,items=[];let col=0;
+  for(let cx=m+w/2;cx+w/2<=SW-m+EPS;cx+=xPitch,col++){
+    const shifted=((col+startShift)%2)===1;
+    const offset=shifted?yPitch/2:0;
+    for(let cy=m+h/2+offset;cy+h/2<=SH-m+EPS;cy+=yPitch)items.push({x:cx-w/2,y:cy-h/2,w,h,rot});
+  }
+  if(!validateEllipses(items,SW,SH,g,m))return null;
+  return {label,count:items.length,items,detail:`ฟันปลาแนวตั้ง • ระยะขอบ ≥ ${(g*10).toFixed(0)} มม.`,shape};
+}
+function ellipseCandidates(SW,SH,w,h,g,m,shape){
+  const out=[];
+  const addOrientation=(ow,oh,rot,prefix)=>{
+    const grid=makeGrid(SW,SH,ow,oh,g,m,prefix+'ตาราง',shape,rot);if(validateEllipses(grid.items,SW,SH,g,m))out.push(grid);
+    for(const s of [0,1]){
+      const H=staggerHorizontal(SW,SH,ow,oh,g,m,s,prefix+`ฟันปลาแนวนอน ${s?'เริ่มเยื้อง':'เริ่มเต็ม'}`,shape,rot);if(H)out.push(H);
+      const V=staggerVertical(SW,SH,ow,oh,g,m,s,prefix+`ฟันปลาแนวตั้ง ${s?'เริ่มเยื้อง':'เริ่มเต็ม'}`,shape,rot);if(V)out.push(V);
+    }
+  };
+  addOrientation(w,h,false,'');
+  if(shape==='ellipse'&&Math.abs(w-h)>EPS)addOrientation(h,w,true,'หมุน 90° • ');
+  return out;
+}
+function dedupe(list){const seen=new Set();return list.filter(x=>{const key=x.count+'|'+x.label+'|'+x.items.map(i=>[i.x.toFixed(3),i.y.toFixed(3),i.w,i.h].join(',')).join(';');if(seen.has(key))return false;seen.add(key);return true})}
+function updateShape(){
+  const shape=$('shape').value,isCircle=shape==='circle';
+  $('heightBox').style.display=isCircle?'none':'block';
+  $('wLabel').textContent=isCircle?'เส้นผ่านศูนย์กลาง (ซม.)':'สติ๊กเกอร์กว้าง (ซม.)';
+  const gap=shape==='rect'?0:0.1;$('gap').value=gap.toFixed(1);$('gap').disabled=true;
+  const txt={rect:'สี่เหลี่ยมขอบธรรมดาจะทดลองผสมแถวแนวตั้งและแนวนอนเพื่อใช้พื้นที่ให้คุ้มที่สุด โดยไม่เว้นระยะ',rounded:'สี่เหลี่ยมขอบมนจะทดลองผสมแถวแนวตั้งและแนวนอน โดยเว้นระยะ 1 มม.',circle:'วงกลมทดลองทั้งตาราง ฟันปลาแนวนอน และฟันปลาแนวตั้ง โดยห่างอย่างน้อย 1 มม.',ellipse:'วงรีทดลองทั้งสองทิศทาง ตาราง ฟันปลาแนวนอน และฟันปลาแนวตั้ง โดยห่างอย่างน้อย 1 มม.'};
+  $('shapeHelp').textContent=txt[shape];document.querySelectorAll('.shapeBtn').forEach(b=>b.classList.toggle('active',b.dataset.shape===shape));calculate();
+}
+function calculate(){
+  const SW=n('sheetW'),SH=n('sheetH'),shape=$('shape').value,g=shape==='rect'?0:0.1,m=n('margin');let w=n('itemW'),h=shape==='circle'?w:n('itemH');
+  if(![SW,SH,w,h,m].every(Number.isFinite)||Math.min(SW,SH,w,h)<=0||m<0){alert('กรุณากรอกขนาดให้ถูกต้อง');return}
+  layouts=(shape==='circle'||shape==='ellipse')?ellipseCandidates(SW,SH,w,h,g,m,shape):rectangleCandidates(SW,SH,w,h,g,m,shape);
+  layouts=dedupe(layouts).sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'th'));active=0;renderChoices();draw();
+}
+function renderChoices(){const box=$('choices');box.innerHTML='';layouts.slice(0,8).forEach((l,i)=>{const d=document.createElement('div');d.className='choice'+(i===active?' active':'');d.innerHTML=`<b>${l.count} ดวง</b><span>${l.label}<br>${l.detail}</span>`;d.addEventListener('click',()=>{active=i;renderChoices();draw()});box.appendChild(d)})}
+function roundedRect(ctx,x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function draw(){
+  const L=layouts[active];if(!L)return;const SW=n('sheetW'),SH=n('sheetH'),cv=$('cv'),ctx=cv.getContext('2d'),pad=34,scale=Math.min((cv.width-2*pad)/SW,(cv.height-2*pad)/SH),ox=(cv.width-SW*scale)/2,oy=(cv.height-SH*scale)/2;
+  $('count').textContent=L.count; if($('mobileCount'))$('mobileCount').textContent=L.count;$('desc').textContent=L.label+' • '+L.detail;$('chips').innerHTML=`<span class="chip">พื้นที่ ${SW} × ${SH} ซม.</span><span class="chip">ขนาด ${n('itemW')} × ${$('shape').value==='circle'?n('itemW'):n('itemH')} ซม.</span><span class="chip">ห่าง ${($('shape').value==='rect'?0:1)} มม.</span>`;
+  ctx.clearRect(0,0,cv.width,cv.height);ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,cv.width,cv.height);ctx.fillStyle='#fff';ctx.strokeStyle='#667085';ctx.lineWidth=1.3;ctx.fillRect(ox,oy,SW*scale,SH*scale);ctx.strokeRect(ox,oy,SW*scale,SH*scale);
+  L.items.forEach((it,idx)=>{const x=ox+it.x*scale,y=oy+it.y*scale,w=it.w*scale,h=it.h*scale;ctx.fillStyle=it.rot?'#eaf0f8':'#f2f4f7';ctx.strokeStyle='#475467';ctx.lineWidth=.75;
+    if(L.shape==='circle'||L.shape==='ellipse'){ctx.beginPath();ctx.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,Math.PI*2);ctx.fill();ctx.stroke()}
+    else if(L.shape==='rounded'){roundedRect(ctx,x,y,w,h,Math.min(w,h)*.12);ctx.fill();ctx.stroke()}
+    else{ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h)}
+    if(w>20&&h>14){ctx.fillStyle='#344054';ctx.font=`${Math.max(7,Math.min(10,w/4,h/2.5))}px Tahoma`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(idx+1,x+w/2,y+h/2)}
+  });
+  ctx.fillStyle='#475467';ctx.font='12px Tahoma';ctx.textAlign='center';ctx.fillText(`${SW} ซม.`,ox+SW*scale/2,oy-10);ctx.save();ctx.translate(ox-14,oy+SH*scale/2);ctx.rotate(-Math.PI/2);ctx.fillText(`${SH} ซม.`,0,0);ctx.restore();
+}
+$('shape').addEventListener('change',updateShape);$('calc').addEventListener('click',calculate);if($('mobileCalc'))$('mobileCalc').addEventListener('click',calculate);document.querySelectorAll('.shapeBtn').forEach(btn=>btn.addEventListener('click',()=>{$('shape').value=btn.dataset.shape;updateShape()}));let timer;['sheetW','sheetH','itemW','itemH','margin'].forEach(id=>{$(id).addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(calculate,220)});$(id).addEventListener('change',calculate)});if($('reset'))$('reset').addEventListener('click',()=>{$('shape').value='rect';$('sheetW').value='30.2';$('sheetH').value='44.4';$('itemW').value='5';$('itemH').value='5';$('margin').value='0.3';updateShape()});updateShape();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
