@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#c8102e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="คำนวณสติ๊กเกอร์">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <title>คำนวณดวงสติ๊กเกอร์</title>
+  <style>
+    :root{--red:#c8102e;--red2:#a80c26;--bg:#f4f5f7;--card:#fff;--ink:#161616;--muted:#6b7280;--line:#d9dde3;--soft:#fff2f4;--ok:#0f766e}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--ink)}
+    body{margin:0;min-height:100vh}
+    button,input,select{font:inherit}
+    .app{max-width:1180px;margin:auto;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}
+    .topbar{position:sticky;top:0;z-index:10;background:rgba(244,245,247,.94);backdrop-filter:blur(12px);padding:12px 0 10px;display:flex;align-items:center;gap:10px}
+    .brand{width:42px;height:42px;border-radius:12px;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:900;letter-spacing:.5px;box-shadow:0 5px 16px rgba(200,16,46,.18)}
+    .title{font-weight:800;font-size:18px;line-height:1.2}.subtitle{font-size:12px;color:var(--muted);margin-top:2px}
+    .grid{display:grid;grid-template-columns:minmax(300px,390px) minmax(0,1fr);gap:14px;padding-bottom:18px}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 3px 14px rgba(17,24,39,.04)}
+    .section-title{font-size:14px;font-weight:800;margin:0 0 10px}
+    .shape-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px}
+    .shape-btn{min-height:68px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:7px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#344054;cursor:pointer}
+    .shape-btn .ico{font-size:24px;line-height:1}.shape-btn span:last-child{font-size:11px;text-align:center}
+    .shape-btn.active{border:2px solid var(--red);background:var(--soft);color:var(--red);font-weight:700}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:12px;color:#475467;margin:0 0 5px;font-weight:600}.field input,.field select{width:100%;height:48px;border:1px solid #cfd4dc;border-radius:12px;padding:0 12px;background:#fff;color:#111827;font-size:17px;outline:none}.field input:focus,.field select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.12)}
+    .unit{font-size:11px;color:var(--muted);margin-top:4px}
+    .calc{width:100%;min-height:52px;border:0;border-radius:14px;background:var(--red);color:#fff;font-weight:800;font-size:17px;margin-top:12px;cursor:pointer;box-shadow:0 6px 14px rgba(200,16,46,.2)}.calc:active{background:var(--red2);transform:translateY(1px)}
+    details{margin-top:11px;border-top:1px dashed var(--line);padding-top:9px}summary{cursor:pointer;color:#475467;font-size:13px;font-weight:700}.advanced{padding-top:10px}
+    .result-card{background:linear-gradient(180deg,#fff6f7,#fff);border:1px solid #facbd4;border-radius:16px;padding:14px;margin-top:12px}.result-label{font-size:12px;color:#7a2437}.result-num{font-size:44px;line-height:1;font-weight:900;color:var(--red);margin:5px 0}.result-desc{font-size:13px;color:#475467;line-height:1.45}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.chip{font-size:11px;border:1px solid #f1b8c4;border-radius:999px;padding:5px 8px;background:#fff}
+    .choice-title{font-size:12px;font-weight:800;color:#475467;margin:12px 0 7px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:7px}.choice{border:1px solid var(--line);border-radius:12px;background:#fff;padding:9px;text-align:left;cursor:pointer}.choice.active{border:2px solid var(--red);background:var(--soft)}.choice b{display:block;font-size:14px}.choice small{display:block;color:var(--muted);font-size:10.5px;line-height:1.35;margin-top:2px}
+    .preview{display:flex;flex-direction:column}.preview-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.preview-head b{font-size:14px}.badge{font-size:11px;color:var(--ok);background:#ecfdf5;border:1px solid #a7f3d0;padding:5px 7px;border-radius:999px}
+    .sheet-wrap{flex:1;display:flex;align-items:flex-start;justify-content:center}.sheet{width:min(100%,600px)}canvas{display:block;width:100%;height:auto;background:#fff;border:1px solid #98a2b3;border-radius:8px}.caption{font-size:11px;color:var(--muted);text-align:center;margin-top:7px}
+    .install{margin-top:10px;background:#f9fafb;border:1px solid var(--line);border-radius:14px;padding:10px;font-size:12px;line-height:1.5;color:#475467}.install b{color:#111827}
+    @media(max-width:840px){.grid{grid-template-columns:1fr}.preview{order:-1}.sheet{max-width:540px}.shape-tabs{grid-template-columns:repeat(4,1fr)}.topbar{padding-top:10px}}
+    @media(max-width:460px){.app{padding-left:8px;padding-right:8px}.panel{border-radius:14px;padding:11px}.fields{grid-template-columns:1fr 1fr;gap:8px}.field input,.field select{height:50px;font-size:18px}.shape-btn{min-height:64px}.shape-btn .ico{font-size:22px}.shape-btn span:last-child{font-size:10px}.result-num{font-size:40px}.choices{grid-template-columns:1fr}.preview-head{margin-bottom:6px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">JD</div>
+    <div><div class="title">คำนวณดวงสติ๊กเกอร์</div><div class="subtitle">พื้นที่ตั้งต้น 30.2 × 44.4 ซม.</div></div>
+  </header>
+
+  <main class="grid">
+    <section class="panel controls">
+      <p class="section-title">1. เลือกรูปทรง</p>
+      <div class="shape-tabs" id="shapeTabs">
+        <button class="shape-btn active" data-shape="rect" type="button"><span class="ico">▭</span><span>สี่เหลี่ยม</span></button>
+        <button class="shape-btn" data-shape="rounded" type="button"><span class="ico">▢</span><span>ขอบมน</span></button>
+        <button class="shape-btn" data-shape="circle" type="button"><span class="ico">○</span><span>วงกลม</span></button>
+        <button class="shape-btn" data-shape="ellipse" type="button"><span class="ico">⬭</span><span>วงรี</span></button>
+      </div>
+
+      <p class="section-title">2. ใส่ขนาดสติ๊กเกอร์</p>
+      <div class="fields">
+        <div class="field"><label id="wLabel" for="itemW">กว้าง</label><input id="itemW" inputmode="decimal" type="number" min="0.1" step="0.1" value="5"><div class="unit">เซนติเมตร</div></div>
+        <div class="field" id="heightField"><label for="itemH">สูง</label><input id="itemH" inputmode="decimal" type="number" min="0.1" step="0.1" value="6"><div class="unit">เซนติเมตร</div></div>
+      </div>
+      <button id="calc" class="calc" type="button">คำนวณจำนวนดวง</button>
+
+      <div class="result-card" aria-live="polite">
+        <div class="result-label">วางได้สูงสุดประมาณ</div>
+        <div class="result-num"><span id="count">0</span> ดวง</div>
+        <div class="result-desc" id="desc">—</div>
+        <div class="chips" id="chips"></div>
+      </div>
+
+      <div class="choice-title">รูปแบบการวางที่โปรแกรมลองให้</div>
+      <div class="choices" id="choices"></div>
+
+      <details>
+        <summary>ตั้งค่าขั้นสูง</summary>
+        <div class="advanced fields">
+          <div class="field"><label for="sheetW">พื้นที่กว้าง</label><input id="sheetW" inputmode="decimal" type="number" min="0.1" step="0.1" value="30.2"><div class="unit">ซม.</div></div>
+          <div class="field"><label for="sheetH">พื้นที่สูง</label><input id="sheetH" inputmode="decimal" type="number" min="0.1" step="0.1" value="44.4"><div class="unit">ซม.</div></div>
+          <div class="field"><label for="margin">ขอบปลอดภัย</label><input id="margin" inputmode="decimal" type="number" min="0" step="0.05" value="0"><div class="unit">ซม.</div></div>
+          <div class="field"><label>ระยะห่าง</label><input id="gapDisplay" type="text" value="0 มม." disabled><div class="unit">กำหนดอัตโนมัติ</div></div>
+        </div>
+      </details>
+
+      <div class="install"><b>ติดตั้งเป็นแอป:</b> iPhone/iPad เปิดด้วย Safari → แชร์ → “เพิ่มไปยังหน้าจอโฮม” • Android เปิด Chrome → เมนู ⋮ → “เพิ่มไปยังหน้าจอหลัก/ติดตั้งแอป”</div>
+    </section>
+
+    <section class="panel preview">
+      <div class="preview-head"><b>ภาพตัวอย่างการวาง</b><span class="badge">ไม่เกินพื้นที่งาน</span></div>
+      <div class="sheet-wrap"><div class="sheet"><canvas id="cv" width="720" height="1058"></canvas><div class="caption">กดตัวเลือกการวางด้านล่างผลลัพธ์เพื่อดูแบบอื่น</div></div></div>
+    </section>
+  </main>
+</div>
+<script>
+const $=id=>document.getElementById(id);let shape='rect',layouts=[],active=0;const EPS=1e-7;
+function val(id){return Number($(id).value)}
+function gapForShape(){return shape==='rect'?0:.1}
+function fitCount(L,size,gap,margin){const usable=L-2*margin;if(usable+EPS<size)return 0;return Math.max(0,Math.floor((usable+gap+EPS)/(size+gap)))}
+function used(n,size,gap){return n>0?n*size+(n-1)*gap:0}
+function centered(L,total){return Math.max(0,(L-total)/2)}
+function makeGrid(SW,SH,w,h,g,m,label,rot=false){const cols=fitCount(SW,w,g,m),rows=fitCount(SH,h,g,m),tw=used(cols,w,g),th=used(rows,h,g),x0=centered(SW,tw),y0=centered(SH,th),items=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)items.push({x:x0+c*(w+g),y:y0+r*(h+g),w,h,rot});return{label,count:items.length,items,detail:`${cols} × ${rows}`,shape}}
+function mixedRows(SW,SH,w,h,g,m,a,b){const normalCols=fitCount(SW,w,g,m),rotCols=fitCount(SW,h,g,m),bands=[];for(let i=0;i<a;i++)bands.push({hh:h,iw:w,ih:h,cols:normalCols,rot:false});for(let i=0;i<b;i++)bands.push({hh:w,iw:h,ih:w,cols:rotCols,rot:true});const total=bands.reduce((s,x)=>s+x.hh,0)+Math.max(0,bands.length-1)*g;if(total>SH-2*m+EPS)return null;let y=m+(SH-2*m-total)/2,items=[];for(const band of bands){const rw=used(band.cols,band.iw,g),x0=m+(SW-2*m-rw)/2;for(let c=0;c<band.cols;c++)items.push({x:x0+c*(band.iw+g),y,w:band.iw,h:band.ih,rot:band.rot});y+=band.hh+g}return{label:'ผสมแถวแนวตั้ง + แนวนอน',count:items.length,items,detail:`แนวตั้ง ${a} แถว + แนวนอน ${b} แถว`,shape}}
+function mixedCols(SW,SH,w,h,g,m,a,b){const normalRows=fitCount(SH,h,g,m),rotRows=fitCount(SH,w,g,m),strips=[];for(let i=0;i<a;i++)strips.push({ww:w,iw:w,ih:h,rows:normalRows,rot:false});for(let i=0;i<b;i++)strips.push({ww:h,iw:h,ih:w,rows:rotRows,rot:true});const total=strips.reduce((s,x)=>s+x.ww,0)+Math.max(0,strips.length-1)*g;if(total>SW-2*m+EPS)return null;let x=m+(SW-2*m-total)/2,items=[];for(const st of strips){const ch=used(st.rows,st.ih,g),y0=m+(SH-2*m-ch)/2;for(let r=0;r<st.rows;r++)items.push({x,y:y0+r*(st.ih+g),w:st.iw,h:st.ih,rot:st.rot});x+=st.ww+g}return{label:'ผสมคอลัมน์แนวตั้ง + แนวนอน',count:items.length,items,detail:`แนวตั้ง ${a} คอลัมน์ + แนวนอน ${b} คอลัมน์`,shape}}
+function rectangleCandidates(SW,SH,w,h,g,m){const out=[];for(let a=0;a<=Math.ceil(SH/Math.max(h,.1))+1;a++)for(let b=0;b<=Math.ceil(SH/Math.max(w,.1))+1;b++){if(!a&&!b)continue;const L=mixedRows(SW,SH,w,h,g,m,a,b);if(L)out.push(L)}for(let a=0;a<=Math.ceil(SW/Math.max(w,.1))+1;a++)for(let b=0;b<=Math.ceil(SW/Math.max(h,.1))+1;b++){if(!a&&!b)continue;const L=mixedCols(SW,SH,w,h,g,m,a,b);if(L)out.push(L)}return out}
+function pointEllipseDistance(px,py,a,b){px=Math.abs(px);py=Math.abs(py);if(px<EPS&&py<EPS)return -Math.min(a,b);if((px*px)/(a*a)+(py*py)/(b*b)<=1+EPS)return 0;let lo=0,hi=Math.max(a*px,b*py,1),f=t=>((a*px)/(t+a*a))**2+((b*py)/(t+b*b))**2-1;while(f(hi)>0)hi*=2;for(let i=0;i<60;i++){const mid=(lo+hi)/2;if(f(mid)>0)lo=mid;else hi=mid}const t=hi,qx=a*a*px/(t+a*a),qy=b*b*py/(t+b*b);return Math.hypot(px-qx,py-qy)}
+function ellipseGap(A,B){const dx=(A.x+A.w/2)-(B.x+B.w/2),dy=(A.y+A.h/2)-(B.y+B.h/2);return pointEllipseDistance(dx,dy,A.w,A.h)}
+function inside(A,SW,SH,m){return A.x>=m-EPS&&A.y>=m-EPS&&A.x+A.w<=SW-m+EPS&&A.y+A.h<=SH-m+EPS}
+function validate(items,SW,SH,g,m){for(const a of items)if(!inside(a,SW,SH,m))return false;for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++){const A=items[i],B=items[j];if(Math.abs((A.x+A.w/2)-(B.x+B.w/2))>A.w+g||Math.abs((A.y+A.h/2)-(B.y+B.h/2))>A.h+g)continue;if(ellipseGap(A,B)<g-1e-5)return false}return true}
+function staggerH(SW,SH,w,h,g,m,start,rot,label){const xPitch=w+g,dx=xPitch/2;let lo=(h+g)/2,hi=h+g;for(let k=0;k<60;k++){const mid=(lo+hi)/2,A={x:0,y:0,w,h},B={x:dx,y:mid,w,h};if(ellipseGap(A,B)>=g)hi=mid;else lo=mid}const yPitch=hi,items=[];let r=0;for(let cy=m+h/2;cy+h/2<=SH-m+EPS;cy+=yPitch,r++){const off=((r+start)%2)?xPitch/2:0;for(let cx=m+w/2+off;cx+w/2<=SW-m+EPS;cx+=xPitch)items.push({x:cx-w/2,y:cy-h/2,w,h,rot})}if(!validate(items,SW,SH,g,m))return null;return{label,count:items.length,items,detail:'ฟันปลาแนวนอน • ห่าง ≥ 1 มม.',shape}}
+function staggerV(SW,SH,w,h,g,m,start,rot,label){const yPitch=h+g,dy=yPitch/2;let lo=(w+g)/2,hi=w+g;for(let k=0;k<60;k++){const mid=(lo+hi)/2,A={x:0,y:0,w,h},B={x:mid,y:dy,w,h};if(ellipseGap(A,B)>=g)hi=mid;else lo=mid}const xPitch=hi,items=[];let c=0;for(let cx=m+w/2;cx+w/2<=SW-m+EPS;cx+=xPitch,c++){const off=((c+start)%2)?yPitch/2:0;for(let cy=m+h/2+off;cy+h/2<=SH-m+EPS;cy+=yPitch)items.push({x:cx-w/2,y:cy-h/2,w,h,rot})}if(!validate(items,SW,SH,g,m))return null;return{label,count:items.length,items,detail:'ฟันปลาแนวตั้ง • ห่าง ≥ 1 มม.',shape}}
+function ellipseCandidates(SW,SH,w,h,g,m){const out=[];const add=(ow,oh,rot,prefix)=>{const grid=makeGrid(SW,SH,ow,oh,g,m,prefix+'ตาราง',rot);if(validate(grid.items,SW,SH,g,m))out.push(grid);for(const s of [0,1]){const H=staggerH(SW,SH,ow,oh,g,m,s,rot,prefix+(s?'ฟันปลาแนวนอน เริ่มเยื้อง':'ฟันปลาแนวนอน'));if(H)out.push(H);const V=staggerV(SW,SH,ow,oh,g,m,s,rot,prefix+(s?'ฟันปลาแนวตั้ง เริ่มเยื้อง':'ฟันปลาแนวตั้ง'));if(V)out.push(V)}};add(w,h,false,'');if(shape==='ellipse'&&Math.abs(w-h)>EPS)add(h,w,true,'หมุน 90° • ');return out}
+function dedupe(list){const seen=new Set();return list.filter(x=>{const key=x.count+'|'+x.label+'|'+x.detail;if(seen.has(key))return false;seen.add(key);return true})}
+function calculate(){const SW=val('sheetW'),SH=val('sheetH'),m=val('margin'),w=val('itemW'),h=shape==='circle'?w:val('itemH'),g=gapForShape();if(![SW,SH,m,w,h].every(Number.isFinite)||Math.min(SW,SH,w,h)<=0||m<0){alert('กรุณากรอกขนาดให้ถูกต้อง');return}layouts=(shape==='circle'||shape==='ellipse')?ellipseCandidates(SW,SH,w,h,g,m):rectangleCandidates(SW,SH,w,h,g,m);layouts=dedupe(layouts).sort((a,b)=>b.count-a.count);active=0;renderChoices();draw()}
+function renderChoices(){const box=$('choices');box.innerHTML='';layouts.slice(0,6).forEach((L,i)=>{const b=document.createElement('button');b.type='button';b.className='choice'+(i===active?' active':'');b.innerHTML=`<b>${L.count} ดวง</b><small>${L.label}<br>${L.detail}</small>`;b.addEventListener('click',()=>{active=i;renderChoices();draw()});box.appendChild(b)})}
+function roundedRect(ctx,x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function draw(){const L=layouts[active];if(!L)return;const SW=val('sheetW'),SH=val('sheetH'),cv=$('cv'),ctx=cv.getContext('2d'),pad=34,scale=Math.min((cv.width-2*pad)/SW,(cv.height-2*pad)/SH),ox=(cv.width-SW*scale)/2,oy=(cv.height-SH*scale)/2;const h=shape==='circle'?val('itemW'):val('itemH');$('count').textContent=L.count;$('desc').textContent=L.label+' • '+L.detail;$('chips').innerHTML=`<span class="chip">${val('itemW')} × ${h} ซม.</span><span class="chip">ระยะ ${shape==='rect'?0:1} มม.</span><span class="chip">พื้นที่ ${SW} × ${SH} ซม.</span>`;ctx.clearRect(0,0,cv.width,cv.height);ctx.fillStyle='#f5f6f8';ctx.fillRect(0,0,cv.width,cv.height);ctx.fillStyle='#fff';ctx.strokeStyle='#667085';ctx.lineWidth=1.3;ctx.fillRect(ox,oy,SW*scale,SH*scale);ctx.strokeRect(ox,oy,SW*scale,SH*scale);L.items.forEach((it,idx)=>{const x=ox+it.x*scale,y=oy+it.y*scale,w=it.w*scale,h=it.h*scale;ctx.fillStyle=it.rot?'#e9eef6':'#f2f4f7';ctx.strokeStyle='#475467';ctx.lineWidth=.7;if(shape==='circle'||shape==='ellipse'){ctx.beginPath();ctx.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,Math.PI*2);ctx.fill();ctx.stroke()}else if(shape==='rounded'){roundedRect(ctx,x,y,w,h,Math.min(w,h)*.12);ctx.fill();ctx.stroke()}else{ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h)}if(w>20&&h>14){ctx.fillStyle='#344054';ctx.font=`${Math.max(7,Math.min(10,w/4,h/2.6))}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(idx+1,x+w/2,y+h/2)}});ctx.fillStyle='#475467';ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillText(`${SW} ซม.`,ox+SW*scale/2,oy-10)}
+function setShape(next){shape=next;document.querySelectorAll('.shape-btn').forEach(b=>b.classList.toggle('active',b.dataset.shape===shape));$('heightField').style.display=shape==='circle'?'none':'block';$('wLabel').textContent=shape==='circle'?'เส้นผ่านศูนย์กลาง':'กว้าง';$('gapDisplay').value=(shape==='rect'?'0':'1')+' มม.';calculate()}
+document.querySelectorAll('.shape-btn').forEach(b=>b.addEventListener('click',()=>setShape(b.dataset.shape)));$('calc').addEventListener('click',calculate);['itemW','itemH','sheetW','sheetH','margin'].forEach(id=>$(id).addEventListener('change',calculate));document.addEventListener('keydown',e=>{if(e.key==='Enter')calculate()});if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));setShape('rect');
+</script>
+</body>
+</html>
